@@ -2,12 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-class DistrictSeeder extends Seeder
+
+class DistrictSeeder extends GeoJsonSeeder
 {
     /**
      * Run the database seeds.
@@ -16,9 +13,13 @@ class DistrictSeeder extends Seeder
      */
     public function run()
     {
-        $file = database_path('data/districts.json');
-        $data = json_decode(file_get_contents($file), true);
-        $now = Carbon::now();
+        $data = $this->rows('districts.json', [
+            'provinceCode',
+            'districtCode',
+            'districtNameTh',
+            'districtNameEn',
+        ]);
+        $now = now();
 
         // จับคู่รหัสจังหวัดกับ id ในฐานข้อมูล
         $provinceIds = DB::table('provinces')
@@ -31,7 +32,7 @@ class DistrictSeeder extends Seeder
             $provinceCode = $item['provinceCode'];
 
             if (!isset($provinceIds[$provinceCode])) {
-                continue;
+                throw new \RuntimeException("Unknown province code {$provinceCode} in districts.json.");
             }
 
             $rows[] = [

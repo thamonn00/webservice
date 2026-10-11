@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Sighting;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,8 @@ class SightingPhotoFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'sighting_id' => Sighting::query()->inRandomOrder()->value('id') ?? Sighting::factory(),
+            'photo' => 'https://placehold.co/640x480?text=Sighting+'.rawurlencode($this->faker->uuid()),
         ];
     }
 }

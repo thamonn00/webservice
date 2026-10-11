@@ -2,13 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
-use Illuminate\Support\Facades\DB;//
-use Carbon\Carbon;//
-
-class ProvinceSeeder extends Seeder
+class ProvinceSeeder extends GeoJsonSeeder
 {
     /**
      * Run the database seeds.
@@ -17,9 +13,12 @@ class ProvinceSeeder extends Seeder
      */
     public function run()
     {
-        $file = database_path('data/provinces.json');
-        $data = json_decode(file_get_contents($file), true);
-        $now = Carbon::now();
+        $data = $this->rows('provinces.json', [
+            'provinceCode',
+            'provinceNameTh',
+            'provinceNameEn',
+        ]);
+        $now = now();
 
         $rows = [];
 

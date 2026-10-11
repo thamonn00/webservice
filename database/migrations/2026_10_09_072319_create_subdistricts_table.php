@@ -19,6 +19,7 @@ return new class extends Migration
                 ->constrained('districts')
                 ->cascadeOnDelete();
 
+            $table->unsignedInteger('subdistrict_code')->unique();
             $table->string('name_th', 100); // ชื่อตำบล
             $table->string('name_en', 100)->nullable();
             $table->string('postal_code', 10)->nullable(); // รหัสไปรษณีย์

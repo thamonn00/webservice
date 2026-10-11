@@ -24,7 +24,6 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique(['species_id', 'name']);
         });
     }
 

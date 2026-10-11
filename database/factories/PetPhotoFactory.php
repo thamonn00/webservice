@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Pet;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +18,9 @@ class PetPhotoFactory extends Factory
     public function definition()
     {
         return [
-            //
+            'pet_id' => Pet::query()->inRandomOrder()->value('id') ?? Pet::factory(),
+            'photo' => 'https://placehold.co/640x480?text=Pet+'.rawurlencode($this->faker->uuid()),
+            'is_primary' => false,
         ];
     }
 }

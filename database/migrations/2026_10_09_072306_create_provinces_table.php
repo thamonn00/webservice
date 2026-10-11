@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('provinces', function (Blueprint $table) {
             $table->id();
+
+            $table->unsignedInteger('province_code')->unique();
+
             $table->string('name_th', 100); // ชื่อจังหวัดภาษาไทย
             $table->string('name_en', 100)->nullable(); // ชื่อจังหวัดภาษาอังกฤษ
             $table->timestamps();

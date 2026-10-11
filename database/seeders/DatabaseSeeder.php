@@ -2,7 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Pet;
+use App\Models\PetPhoto;
+use App\Models\Report;
+use App\Models\ReportPhoto;
+use App\Models\Sighting;
+use App\Models\SightingPhoto;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -14,18 +20,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
         $this->call([
-            ProvinceSeeder::class,// 77 จังหวัด
-            DistrictSeeder::class,// 928 อำเภอ/เขต
-            SubdistrictSeeder::class,// 7,436 ตำบล/แขวง
+            ProvinceSeeder::class,
+            DistrictSeeder::class,
+            SubdistrictSeeder::class,
+            SpeciesSeeder::class,
+            BreedSeeder::class,
         ]);
 
 
+        \App\Models\Pet::factory(10)->create();
+        \App\Models\Pet::factory(10)->create();
+        \App\Models\Pet::factory(10)->create();
 
-
-
-        
-        
     }
 }

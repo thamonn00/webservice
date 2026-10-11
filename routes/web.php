@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\Admin\AuthController as AdminAuthController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ResourceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,10 +16,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::view('/', 'welcome')->name('home');
 
-Route::get('/pets', function () {
-    return view('pets.index');
+Route::get('/admin/login', [AdminAuthController::class, 'create'])->name('admin.login');
+Route::post('/admin/login', [AdminAuthController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('admin.login.store');
+
+Route::prefix('admin')->name('admin.')->middleware('admin')->group(function () {
+    Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('logout');
+    Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/{resource}', [ResourceController::class, 'index'])->name('resources.index');
+    Route::post('/{resource}', [ResourceController::class, 'store'])->name('resources.store');
+    Route::put('/{resource}/{record}', [ResourceController::class, 'update'])->name('resources.update');
+    Route::delete('/{resource}/{record}', [ResourceController::class, 'destroy'])->name('resources.destroy');
 });

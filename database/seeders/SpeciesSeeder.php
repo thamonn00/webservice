@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Species;
 use Illuminate\Database\Seeder;
 
 class SpeciesSeeder extends Seeder
@@ -14,6 +14,8 @@ class SpeciesSeeder extends Seeder
      */
     public function run()
     {
-        //
+        foreach (['สุนัข', 'แมว', 'นก', 'กระต่าย', 'หนูแฮมสเตอร์', 'หมู', 'โค', 'อื่น ๆ'] as $name) {
+            Species::firstOrCreate(['name' => $name]);
+        }
     }
 }

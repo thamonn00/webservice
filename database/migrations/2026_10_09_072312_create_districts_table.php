@@ -19,8 +19,10 @@ return new class extends Migration
                 ->constrained('provinces')
                 ->cascadeOnDelete();
 
+            $table->unsignedInteger('district_code')->unique();
             $table->string('name_th', 100); // ชื่ออำเภอ
             $table->string('name_en', 100)->nullable();
+            $table->string('postal_code', 10)->nullable();
             $table->timestamps();
 
             $table->unique(['province_id', 'name_th']);

@@ -12,6 +12,19 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected static function booted()
+    {
+        static::deleting(function (User $user) {
+            $user->pets()->chunkById(100, function ($pets) {
+                $pets->each->delete();
+            });
+
+            $user->reports()->chunkById(100, function ($reports) {
+                $reports->each->delete();
+            });
+        });
+    }
+
     /**
      * The attributes that are mass assignable.
      *
@@ -43,4 +56,20 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /** true = แอดมิน (แก้/ลบของทุกคนได้) */
+    public function isAdmin(): bool
+    {
+        return ($this->role ?? null) === 'admin';
+    }
+
+    public function pets()
+    {
+        return $this->hasMany(Pet::class);
+    }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 }

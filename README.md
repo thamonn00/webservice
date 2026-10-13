@@ -1,119 +1,82 @@
-# เว็บเซอร์วิสแจ้งสัตว์หายและแจ้งพบสัตว์
+# 🐾 Lost Pet — เว็บเซอร์วิสแจ้งสัตว์หาย / พบสัตว์
+Laravel 9, API ใช้ Sanctum Bearer Token และมีหน้าเว็บสำหรับดูข้อมูลสัตว์
 
-เว็บเซอร์วิสนี้ให้บริการข้อมูลสัตว์เลี้ยง รายงานสัตว์หาย และการแจ้งพบสัตว์
-รวมถึงข้อมูลจังหวัด อำเภอ/เขต ตำบล/แขวง ชนิดสัตว์ และสายพันธุ์
+## เริ่มต้นแบบพื้นฐาน (Laragon)
 
-## การเข้าสู่ระบบและข้อมูลสัตว์เลี้ยง
-
-หลังเข้าสู่ระบบสำเร็จ ให้นำโทเคนจาก `POST /api/login` ไปใช้กับ API
-ที่ต้องเข้าสู่ระบบ โดยส่งส่วนหัวดังนี้
-
-```http
-Authorization: Bearer <token>
-Accept: application/json
-```
-
-| วิธีเรียก | ที่อยู่ API | สิทธิ์ | การทำงาน |
-| --- | --- | --- | --- |
-| `POST` | `/api/register` | ไม่ต้องเข้าสู่ระบบ | สมัครสมาชิก |
-| `POST` | `/api/login` | ไม่ต้องเข้าสู่ระบบ | เข้าสู่ระบบและรับโทเคน |
-| `POST` | `/api/logout` | ต้องใช้โทเคน | ออกจากระบบและยกเลิกโทเคนปัจจุบัน |
-| `GET` | `/api/pets` | สาธารณะ | ดูรายการสัตว์เลี้ยงแบบแบ่งหน้า |
-| `GET` | `/api/pets/{id}` | สาธารณะ | ดูข้อมูลสัตว์เลี้ยงตามรหัส |
-| `POST` | `/api/pets` | โทเคน (user/admin) | เพิ่มข้อมูลสัตว์เลี้ยง (เป็นของตัวเอง) |
-| `PUT` / `PATCH` | `/api/pets/{id}` | เจ้าของ / แอดมิน | แก้ไขข้อมูลสัตว์เลี้ยง |
-| `DELETE` | `/api/pets/{id}` | เจ้าของ / แอดมิน | ลบข้อมูลสัตว์เลี้ยง |
-
-ข้อมูลสัตว์เลี้ยงประกอบด้วย `species_id`, `breed_id` (ไม่บังคับ), `name`,
-`color`, `gender`, `age` และ `description` สายพันธุ์ต้องเป็นสายพันธุ์ของชนิด
-สัตว์ที่เลือก ระบบกำหนด `user_id` จากบัญชีที่เข้าสู่ระบบโดยอัตโนมัติ
-ผู้ใช้ทั่วไปเรียกดูข้อมูลผ่าน API ได้ และเพิ่ม/แก้/ลบเฉพาะสัตว์ของตัวเองได้ (แอดมินทำได้ทุกตัว)
-
-## รายงานสัตว์หายและการแจ้งพบสัตว์
-
-| วิธีเรียก | ที่อยู่ API | สิทธิ์ | การทำงาน |
-| --- | --- | --- | --- |
-| `GET` | `/api/reports` | สาธารณะ | ดูรายงานสัตว์หาย/พบทั้งหมดแบบแบ่งหน้า |
-| `GET` | `/api/reports/{id}` | สาธารณะ | ดูรายงานตามรหัส |
-| `GET` | `/api/reports/{id}/matches` | สาธารณะ | ดูรายงานฝั่งตรงข้ามที่น่าจะใช่ตัวเดียวกัน |
-| `POST` | `/api/reports` | โทเคน (user/admin) | เพิ่มรายงานสัตว์หาย/พบ |
-| `PUT` / `PATCH` | `/api/reports/{id}` | เจ้าของ / แอดมิน | แก้ไขรายงาน |
-| `DELETE` | `/api/reports/{id}` | เจ้าของ / แอดมิน | ลบรายงาน |
-| `GET` | `/api/sightings` | สาธารณะ | ดูรายการแจ้งพบสัตว์แบบแบ่งหน้า |
-| `GET` | `/api/sightings/{id}` | สาธารณะ | ดูข้อมูลแจ้งพบสัตว์ตามรหัส |
-| `POST` | `/api/sightings` | โทเคน (user/admin) | เพิ่มข้อมูลแจ้งพบสัตว์ |
-| `PUT` / `PATCH` | `/api/sightings/{id}` | เจ้าของ / แอดมิน | แก้ไขข้อมูลแจ้งพบสัตว์ |
-| `DELETE` | `/api/sightings/{id}` | เจ้าของ / แอดมิน | ลบข้อมูลแจ้งพบสัตว์ |
-
-## การเพิ่มและจัดการรูปภาพ
-
-เพิ่มรูปภาพได้ 2 วิธี:
-
-- **อัปโหลดไฟล์:** ส่งข้อมูลแบบ `multipart/form-data` โดยใส่ไฟล์ใน `photos[]`
-  รองรับไฟล์ `jpg`, `png` และ `webp` ขนาดไม่เกิน 5 MB ต่อรูป
-- **ใช้ลิงก์รูป:** ส่งที่อยู่รูปที่มีอยู่แล้วใน `photo_urls[]` เช่น
-  `https://example.com/pet.jpg`
-
-ขณะอัปเดตข้อมูล ให้ส่ง `delete_photo_ids[]` พร้อมรหัสรูปที่ต้องการลบ
-หากส่งไฟล์ระหว่างแก้ไขข้อมูล ให้เรียกด้วย `POST` พร้อมค่า `_method=PATCH`
-หรือ `_method=PUT`
-
-ไฟล์ที่อัปโหลดจะจัดเก็บในพื้นที่สาธารณะของ Laravel
-ให้สร้างลิงก์สำหรับเข้าถึงไฟล์ด้วยคำสั่งต่อไปนี้หนึ่งครั้ง:
-
-```bash
-php artisan storage:link
-```
-
-เมื่อเพิ่มข้อมูลตัวอย่าง ระบบจะสร้างรูปเป็นลิงก์ภาพตัวอย่างจาก factory
-ไม่ได้สร้างไฟล์รูปสุ่มเก็บไว้ในเซิร์ฟเวอร์
-
-## ข้อมูลพื้นที่
-
-ข้อมูลจังหวัด อำเภอ/เขต และตำบล/แขวงอ่านจากไฟล์ JSON ใน `database/data`
-มีข้อมูลจังหวัด 77 จังหวัด, อำเภอ/เขต 928 แห่ง และตำบล/แขวง 7,436 แห่ง
-สามารถเรียกดูข้อมูลผ่าน API ต่อไปนี้:
-
-| วิธีเรียก | ที่อยู่ API | การทำงาน |
-| --- | --- | --- |
-| `GET` | `/api/provinces` | ดูรายชื่อจังหวัด |
-| `GET` | `/api/provinces/{id}` | ดูจังหวัดตามรหัส |
-| `GET` | `/api/districts` | ดูรายชื่ออำเภอ/เขต |
-| `GET` | `/api/districts?province_id={id}` | ดูอำเภอ/เขตในจังหวัดที่เลือก |
-| `GET` | `/api/districts/{id}` | ดูอำเภอ/เขตตามรหัส |
-| `GET` | `/api/subdistricts` | ดูรายชื่อตำบล/แขวง |
-| `GET` | `/api/subdistricts?district_id={id}` | ดูตำบล/แขวงในอำเภอ/เขตที่เลือก |
-| `GET` | `/api/subdistricts/{id}` | ดูตำบล/แขวงตามรหัส |
-
-ตัวเติมข้อมูลพื้นที่สามารถเรียกซ้ำได้โดยไม่เพิ่มข้อมูลซ้ำ
-
-## หน้าแอดมินและสิทธิ์ผู้ใช้งาน
-
-- หน้าแรกของระบบอยู่ที่ `/` และมีลิงก์เรียก API สาธารณะสำหรับนำไปพัฒนาแอป
-- หน้าเข้าสู่ระบบแอดมินอยู่ที่ `/admin/login`
-- หลังเข้าสู่ระบบ จัดการสัตว์เลี้ยง รายงานสัตว์หาย และการแจ้งพบได้จากแดชบอร์ด
-- เฉพาะบัญชีที่มี `role=admin` เท่านั้นที่เข้าหน้าแอดมินหรือเขียนข้อมูลผ่าน API ได้
-- ผู้ใช้ทั่วไปยังสมัคร/เข้าสู่ระบบเพื่อรับ Sanctum token และเรียก API ที่อ่านข้อมูลได้
-
-ตั้งค่า `ADMIN_NAME`, `ADMIN_EMAIL` และ `ADMIN_PASSWORD` ใน `.env`
-ก่อนรัน seeder เพื่อสร้างหรือปรับบัญชีแอดมิน จากนั้นรัน:
-
-```bash
-php artisan db:seed --class=UserSeeder
-```
-
-Seeder จะไม่สร้างบัญชีแอดมินเมื่อไม่ได้กำหนดตัวแปรเหล่านี้
-
-## การเริ่มใช้งาน
-
-1. ตั้งค่าการเชื่อมต่อฐานข้อมูลในไฟล์ `.env`
-2. สร้างตารางและเติมข้อมูลตัวอย่างด้วยคำสั่ง:
+1. สร้างฐานข้อมูล `lostpet` ใน phpMyAdmin โดยใช้ `utf8mb4`
+2. ถ้ายังไม่มีไฟล์ `.env` ให้คัดลอกจาก `.env.example` แล้วตั้งค่า `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD` และ `ADMIN_NAME`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`
+3. เปิด terminal ที่โฟลเดอร์โปรเจกต์ แล้วรัน:
 
    ```bash
-   php artisan migrate --seed
+   composer install
+   php artisan key:generate
+   php artisan migrate
+   php artisan db:seed
    ```
 
-3. หากต้องการแสดงรูปที่อัปโหลด ให้รัน `php artisan storage:link`
+   ใช้ `key:generate` เฉพาะครั้งแรกที่ `APP_KEY` ยังว่าง `migrate` สร้างตารางตาม migration ที่มีอยู่ และ `db:seed` เติมข้อมูลตั้งต้น ห้ามใช้ `migrate:fresh` กับฐานข้อมูลที่ต้องการเก็บข้อมูล
+   Migration ชุดนี้ใช้กับฐานข้อมูลใหม่ หากเป็นฐานข้อมูลจาก migration ชุดเดิม ให้วางแผนย้ายข้อมูลก่อน ห้ามรัน migrate โดยไม่ตรวจสอบ
+4. ถ้าอัปโหลดรูป ให้รัน `php artisan storage:link` เพียงครั้งเดียว
 
-> คำสั่ง `php artisan migrate:fresh --seed` จะลบตารางและข้อมูลเดิมทั้งหมด
-> แล้วสร้างใหม่ ใช้เฉพาะฐานข้อมูลที่ยอมให้ลบข้อมูลได้เท่านั้น
+บัญชีตัวอย่าง `somchai@example.com` และ `somying@example.com` ใช้ได้เฉพาะ local/testing รหัสผ่าน `password123` ห้ามนำบัญชีตัวอย่างไปใช้บน production
+
+Web: `/login`, `/register`, `/pets`, `/api-docs`.
+
+## ออกแบบฐานข้อมูล (9 ตารางของระบบ + ตาราง token)
+```
+users ─┬─< pets >─┬─ species ─< breeds
+       │          │
+       └─< reports ┘(pet_id เว้นว่างได้)      provinces ─< districts ─< subdistricts
+               │                                                         ▲
+               └── subdistrict_id ───────────────────────────────────────┘
+photos (photoable_type + photoable_id)  ← ใช้ร่วมกันทั้ง pets และ reports
+personal_access_tokens (Sanctum)
+```
+| ตาราง | หน้าที่ / จุดที่ออกแบบ |
+|---|---|
+| `users` | name, email, phone, password, `role` (user/admin) |
+| `species`, `breeds` | ชนิดและสายพันธุ์ (สายพันธุ์ผูกกับชนิด ตรวจตอน insert ว่าสายพันธุ์ตรงกับชนิด) |
+| `pets` | สัตว์เลี้ยงของสมาชิก (user_id, species_id, breed_id, name, color, gender, age, description) |
+| `reports` | ประกาศ **หาย (lost) / พบ (found)** — `pet_id` เป็น null ได้ เพราะประกาศ "พบ" มักไม่รู้ว่าเป็นสัตว์ของใคร จึงมี species_id/breed_id/color ในตัวเอง; ที่อยู่เก็บเป็น `subdistrict_id` เพียงคอลัมน์เดียว (อำเภอ/จังหวัดดึงต่อจากความสัมพันธ์ ไม่เก็บซ้ำ); `status` open/closed |
+| `provinces`, `districts`, `subdistricts` | 77 จังหวัด / 928 อำเภอ / 7,436 ตำบล จาก `database/data/*.json` |
+| `photos` | **ตารางรูปตารางเดียว** (polymorphic) |
+
+**รูปภาพรวมตารางเดียวดีกว่า:** ของเดิมแยก `pet_photos`, `report_photos` (และ sighting_photos) ซึ่งคอลัมน์เหมือนกันทุกประการ
+รวมเป็น `photos` ตารางเดียวด้วย `photoable_type/photoable_id` ทำให้โค้ด อัปโหลด/ลบ/รูปหลัก เขียนครั้งเดียวใช้ได้ทุกตาราง
+และเพิ่มตารางใหม่ที่มีรูปได้ทันที (ลบสัตว์/ประกาศ → ลบรูปและไฟล์ให้อัตโนมัติ)
+
+เอา **การแจ้งเบาะแส (sightings)** ออกแล้วตามที่ต้องการ
+
+## API (ส่ง `Accept: application/json` ทุกครั้ง)
+| งาน | Method + URL | Token |
+|---|---|---|
+| สมัคร | `POST /api/register` | - |
+| **1.2 Login** (ได้ token) | `POST /api/login` {email,password} | - |
+| **1.2 Logout** | `POST /api/logout` | ✔ `Authorization: Bearer <token>` |
+| ข้อมูลตัวเอง | `GET /api/me` | ✔ |
+| **1.3 getAll** | `GET /api/pet` (กรอง: q, species_id, breed_id, gender) | - |
+| **1.3 getByID** | `GET /api/pet/{id}` | - |
+| **1.4 insert** | `POST /api/pet` | ✔ |
+| **1.4 update** | `PUT/PATCH /api/pet/{id}` | ✔ |
+| **1.4 delete** | `DELETE /api/pet/{id}` | ✔ |
+| ข้อมูลอ้างอิง | `GET /api/species` `/breeds` `/provinces` `/districts?province_id=` `/subdistricts?district_id=` (และ `/{id}`) | - |
+
+รายละเอียดพารามิเตอร์/ตัวอย่าง curl ดูที่หน้า `/api-docs`. อัปโหลดรูปส่ง `multipart/form-data` ฟิลด์ `photos[]` (หรือ `photo_urls[]`);
+แก้ไขพร้อมไฟล์ให้ `POST` แล้วใส่ `_method=PUT`; ลบรูปด้วย `delete_photo_ids[]`.
+
+**1.5 เทคนิคเพิ่มเติม:** ค้นหา/กรอง (`q`, `species_id`, `breed_id`, `gender`) + แบ่งหน้า (`per_page`) + รวมรูป/ชนิด/เจ้าของใน response เดียว + หน้าเว็บมีปุ่มคัดลอก URL/curl/JSON ทุกเส้น
+
+## เว็บ (login ก่อนถึงเข้าได้)
+- `/login` เข้าสู่ระบบ · `/register` สมัครสมาชิก · `/pets` แสดงข้อมูลสัตว์ + ค้นหา · `/pets/{id}` ดูรายตัว + JSON + ปุ่มก๊อป · `/api-docs` ตาราง API + ปุ่มก๊อปทุกเส้น · ปุ่มออกจากระบบอยู่บน nav (โชว์ชื่อ+อีเมล user ที่ล็อกอิน)
+
+## 1.1 เก็บโปรเจกต์บน GitHub (ต้อง push เอง)
+```bash
+cd c:\laragon\www\minipro_webservice\webservice1
+git add .
+git commit -m "เว็บมินิมอล + API pet ครบ 1.2-1.5"
+git push origin main
+```
+
+## Seeder / Factory
+`php artisan db:seed` เรียก seeder ข้อมูลตั้งต้น และเพิ่มสัตว์/รายงานตัวอย่างเฉพาะ local/testing บัญชี admin ใช้ค่าจาก `.env`
+(ใช้ `PetFactory`, `ReportFactory`, `PhotoFactory`, `UserFactory`) — รันซ้ำได้ ไม่สร้างข้อมูลซ้ำ

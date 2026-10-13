@@ -20,4 +20,9 @@ class Breed extends Model
     {
         return $this->hasMany(Pet::class);
     }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 }

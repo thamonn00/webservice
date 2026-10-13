@@ -2,42 +2,38 @@
 
 namespace Database\Factories;
 
-use App\Models\Pet;
+use App\Models\Species;
+use App\Models\Subdistrict;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Report>
- */
 class ReportFactory extends Factory
 {
     public function definition()
     {
-        return [
-            'pet_id' => Pet::factory(),
-            'user_id' => User::factory(),
-            'type' => $this->faker->randomElement(['lost', 'found']),
-            'title' => $this->faker->sentence(5),
-            'description' => $this->faker->paragraph(),
-            'province' => 'กรุงเทพมหานคร',
-            'district' => 'บางรัก',
-            'subdistrict' => 'สีลม',
-            'place' => $this->faker->streetAddress(),
-            'latitude' => $this->faker->latitude(5, 21),
-            'longitude' => $this->faker->longitude(97, 106),
-            'seen_at' => $this->faker->dateTimeBetween('-30 days', 'now'),
-            'contact_phone' => $this->faker->numerify('0#########'),
-            'status' => 'active',
-        ];
-    }
+        $type = $this->faker->randomElement(['lost', 'found']);
+        $sub = Subdistrict::inRandomOrder()->first();
 
-    public function configure()
-    {
-        // เจ้าของรายงาน = เจ้าของสัตว์ (ถ้าไม่ได้กำหนด user มาให้)
-        return $this->afterCreating(function ($report) {
-            if ($report->pet && $report->user_id !== $report->pet->user_id) {
-                $report->updateQuietly(['user_id' => $report->pet->user_id]);
-            }
-        });
+        return [
+            'user_id' => User::inRandomOrder()->value('id') ?? User::factory(),
+            'pet_id' => null,
+            'species_id' => Species::inRandomOrder()->value('id') ?? 1,
+            'breed_id' => null,
+            'type' => $type,
+            'title' => $type === 'lost' ? 'ตามหาน้องหาย ใครเจอช่วยแจ้งด้วย' : 'พบสัตว์เลี้ยงหลงทาง ตามหาเจ้าของ',
+            'color' => $this->faker->randomElement(['ขาว', 'ดำ', 'น้ำตาล', 'ส้ม', 'เทา', 'ขาว-ดำ']),
+            'description' => $this->faker->randomElement([
+                'หายจากบ้านช่วงเย็น ใส่ปลอกคอ ตอบสนองเมื่อเรียกชื่อ',
+                'เจอเดินอยู่ริมถนน ดูกลัว ๆ ตอนนี้พักอยู่กับผู้พบ',
+                'ขนฟู ตัวไม่ใหญ่ มีรางวัลนำจับ',
+            ]),
+            'subdistrict_id' => $sub?->id,
+            'place' => $this->faker->randomElement(['หน้าตลาดสด', 'ใกล้โรงเรียน', 'ปั๊มน้ำมัน', 'ซอยข้างวัด', 'หมู่บ้านจัดสรร']),
+            'latitude' => $this->faker->latitude(13.5, 18.5),
+            'longitude' => $this->faker->longitude(99.5, 103),
+            'event_at' => $this->faker->dateTimeBetween('-30 days', 'now'),
+            'contact_phone' => '08' . $this->faker->numerify('########'),
+            'status' => $this->faker->randomElement(['open', 'open', 'open', 'closed']),
+        ];
     }
 }

@@ -15,4 +15,9 @@ class Subdistrict extends Model
     {
         return $this->belongsTo(District::class);
     }
+
+    public function reports()
+    {
+        return $this->hasMany(Report::class);
+    }
 }

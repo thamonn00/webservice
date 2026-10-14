@@ -54,29 +54,31 @@ personal_access_tokens (Sanctum)
 | **1.2 Login** (ได้ token) | `POST /api/login` {email,password} | - |
 | **1.2 Logout** | `POST /api/logout` | ✔ `Authorization: Bearer <token>` |
 | ข้อมูลตัวเอง | `GET /api/me` | ✔ |
-| **1.3 getAll** | `GET /api/pet` (กรอง: q, species_id, breed_id, gender) | - |
-| **1.3 getByID** | `GET /api/pet/{id}` | - |
+| **1.3 getAll** | `GET /api/pet` (alias `GET /api/pets`; กรอง: q, species_id, breed_id, gender) | ✔ |
+| **1.3 getByID** | `GET /api/pet/{id}` | ✔ |
 | **1.4 insert** | `POST /api/pet` | ✔ |
 | **1.4 update** | `PUT/PATCH /api/pet/{id}` | ✔ |
 | **1.4 delete** | `DELETE /api/pet/{id}` | ✔ |
-| ข้อมูลอ้างอิง | `GET /api/species` `/breeds` `/provinces` `/districts?province_id=` `/subdistricts?district_id=` (และ `/{id}`) | - |
+| ประกาศหาย/พบ getAll/getByID | `GET /api/reports` (alias `GET /api/report`; กรอง: q, type=lost/found, status, species_id) | ✔ |
+| ประกาศหาย/พบ insert/update/delete | `POST /api/reports` · `PUT/PATCH /api/reports/{id}` · `DELETE /api/reports/{id}` | ✔ |
+| ข้อมูลอ้างอิง | `GET /api/species` `/breeds` `/provinces` `/districts?province_id=` `/subdistricts?district_id=` (และ `/{id}`; `districts`/`subdistricts` ส่ง `?per_page=` ได้เพราะข้อมูลเยอะ) | ✔ |
 
 รายละเอียดพารามิเตอร์/ตัวอย่าง curl ดูที่หน้า `/api-docs`. อัปโหลดรูปส่ง `multipart/form-data` ฟิลด์ `photos[]` (หรือ `photo_urls[]`);
 แก้ไขพร้อมไฟล์ให้ `POST` แล้วใส่ `_method=PUT`; ลบรูปด้วย `delete_photo_ids[]`.
 
 **1.5 เทคนิคเพิ่มเติม:** ค้นหา/กรอง (`q`, `species_id`, `breed_id`, `gender`) + แบ่งหน้า (`per_page`) + รวมรูป/ชนิด/เจ้าของใน response เดียว + หน้าเว็บมีปุ่มคัดลอก URL/curl/JSON ทุกเส้น
 
-## เว็บ (login ก่อนถึงเข้าได้)
-- `/login` เข้าสู่ระบบ · `/register` สมัครสมาชิก · `/pets` แสดงข้อมูลสัตว์ + ค้นหา · `/pets/{id}` ดูรายตัว + JSON + ปุ่มก๊อป · `/api-docs` ตาราง API + ปุ่มก๊อปทุกเส้น · ปุ่มออกจากระบบอยู่บน nav (โชว์ชื่อ+อีเมล user ที่ล็อกอิน)
+## เว็บ (login ก่อนถึงเข้าได้ ยกเว้น `/api-docs`)
+- `/login` เข้าสู่ระบบ · `/register` สมัครสมาชิก · `/pets` แสดงข้อมูลสัตว์ + ค้นหา · `/pets/{id}` ดูรายตัว + JSON + ปุ่มก๊อป · `/reports` ประกาศหาย/พบ + กรอง type/status · `/reports/{id}` ดูรายประกาศ + JSON + ปุ่มก๊อป · `/api-docs` ตาราง API + ปุ่มก๊อปทุกเส้น · ปุ่มออกจากระบบอยู่บน nav (โชว์ชื่อ+อีเมล user ที่ล็อกอิน)
 
 ## 1.1 เก็บโปรเจกต์บน GitHub (ต้อง push เอง)
 ```bash
-cd c:\laragon\www\minipro_webservice\webservice1
+cd c:\laragon\www\minipro_webservice\pet\webservice1
 git add .
 git commit -m "เว็บมินิมอล + API pet ครบ 1.2-1.5"
 git push origin main
 ```
 
 ## Seeder / Factory
-`php artisan db:seed` เรียก seeder ข้อมูลตั้งต้น และเพิ่มสัตว์/รายงานตัวอย่างเฉพาะ local/testing บัญชี admin ใช้ค่าจาก `.env`
-(ใช้ `PetFactory`, `ReportFactory`, `PhotoFactory`, `UserFactory`) — รันซ้ำได้ ไม่สร้างข้อมูลซ้ำ
+`php artisan db:seed` เรียก seeder ข้อมูลตั้งต้น และเพิ่มสัตว์ 100 + ประกาศ 100 ตัวละ 1 รูปเฉพาะ local/testing (ข้ามถ้ามีข้อมูลแล้ว ใช้ `migrate:fresh --seed` เพื่อเริ่มใหม่) บัญชี admin ใช้ค่าจาก `.env`
+(ใช้ `PetFactory`, `ReportFactory`, `PhotoFactory`, `UserFactory`) — `User/Species/Geography` รันซ้ำได้ไม่สร้างข้อมูลซ้ำ

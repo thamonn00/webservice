@@ -14,10 +14,10 @@ class UserController extends Controller
     {
         $q = User::query()
             ->when($request->filled('q'), function ($x) use ($request) {
-                $t = '%'.addcslashes($request->q, '%_\\').'%';
-                $x->where(fn ($i) => $i->where('name', 'like', $t)->orWhere('email', 'like', $t));
+                $t = '%' . addcslashes($request->q, '%_\\') . '%';
+                $x->where(fn($i) => $i->where('name', 'like', $t)->orWhere('email', 'like', $t));
             })
-            ->when($request->filled('role'), fn ($x) => $x->where('role', $request->role))
+            ->when($request->filled('role'), fn($x) => $x->where('role', $request->role))
             ->latest('id')
             ->paginate($request->input('per_page', 15));
 
@@ -42,7 +42,9 @@ class UserController extends Controller
         // ห้ามแก้ role ตัวเอง กันล็อกตัวเองออกจากแอดมิน
         if (array_key_exists('role', $data) && (int) $user->id === (int) $request->user()->id) {
             return response()->json([
-                'status' => false, 'message' => 'ไม่สามารถเปลี่ยน role ของตัวเองได้', 'data' => null,
+                'status' => false,
+                'message' => 'ไม่สามารถเปลี่ยน role ของตัวเองได้',
+                'data' => null,
             ], 403);
         }
 
@@ -55,7 +57,9 @@ class UserController extends Controller
     {
         if ((int) $user->id === (int) $request->user()->id) {
             return response()->json([
-                'status' => false, 'message' => 'ไม่สามารถลบบัญชีของตัวเองได้', 'data' => null,
+                'status' => false,
+                'message' => 'ไม่สามารถลบบัญชีของตัวเองได้',
+                'data' => null,
             ], 403);
         }
 

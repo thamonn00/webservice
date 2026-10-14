@@ -28,12 +28,12 @@ class ReportController extends Controller
         ]);
 
         $rows = Report::with(self::WITH)
-            ->when($request->filled('type'), fn ($q) => $q->where('type', $request->type))
-            ->when($request->filled('status'), fn ($q) => $q->where('status', $request->status))
-            ->when($request->filled('species_id'), fn ($q) => $q->where('species_id', $request->species_id))
+            ->when($request->filled('type'), fn($q) => $q->where('type', $request->type))
+            ->when($request->filled('status'), fn($q) => $q->where('status', $request->status))
+            ->when($request->filled('species_id'), fn($q) => $q->where('species_id', $request->species_id))
             ->when($request->filled('q'), function ($q) use ($request) {
-                $t = '%'.addcslashes($request->q, '%_\\').'%';
-                $q->where(fn ($i) => $i->where('title', 'like', $t)->orWhere('color', 'like', $t));
+                $t = '%' . addcslashes($request->q, '%_\\') . '%';
+                $q->where(fn($i) => $i->where('title', 'like', $t)->orWhere('color', 'like', $t));
             })
             ->latest('id')
             ->paginate($request->input('per_page', 15));
@@ -127,8 +127,20 @@ class ReportController extends Controller
     private function reportData(array $data): array
     {
         return array_intersect_key($data, array_flip([
-            'pet_id', 'species_id', 'breed_id', 'type', 'title', 'color', 'description',
-            'subdistrict_id', 'place', 'latitude', 'longitude', 'event_at', 'contact_phone', 'status',
+            'pet_id',
+            'species_id',
+            'breed_id',
+            'type',
+            'title',
+            'color',
+            'description',
+            'subdistrict_id',
+            'place',
+            'latitude',
+            'longitude',
+            'event_at',
+            'contact_phone',
+            'status',
         ]));
     }
 }

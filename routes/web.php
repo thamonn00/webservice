@@ -12,18 +12,17 @@ Route::get('/', function () {
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+    Route::post('login', [AuthController::class, 'login']);
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1');
+    Route::post('register', [AuthController::class, 'register']);
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::post('/api-token', [DocsController::class, 'createToken'])
-        ->middleware('throttle:5,1')
-        ->name('docs.token');
+    Route::post('/api-token', [DocsController::class, 'createToken'])->name('docs.token');
     Route::get('/pets', [PetWebController::class, 'index'])->name('pets.index');
     Route::get('/pets/{pet}', [PetWebController::class, 'show'])->name('pets.show');
+   
 
     // ---------- หน้าเว็บแอดมิน (เฉพาะ role=admin) ----------
     Route::middleware('admin')->group(function () {

@@ -116,7 +116,7 @@
             </tr>
             <tr>
                 <td><span class="m-GET">GET</span></td>
-                <td>/pet</td>
+                <td>/pet, /pets</td>
                 <td>ข้อมูลสัตว์ทั้งหมด (แบ่งหน้า); กรองได้: q, species_id, breed_id, gender</td>
                 <td><span class="badge-lock">🔒</span></td>
                 <td><button class="btn ghost sm" onclick="copyText('{{ url('/api/pet') }}', this)">คัดลอก URL</button></td>
@@ -158,8 +158,8 @@
             </tr>
             <tr>
                 <td><span class="m-GET">GET</span></td>
-                <td>/subdistricts</td>
-                <td>ตำบล; กรองได้ด้วย district_id</td>
+                <td>/subdistricts, /subdistricts/{id}</td>
+                <td>ตำบล; กรองได้ด้วย district_id<br>ดูตาม ID เช่น <code>{{ url('/api/subdistricts/1') }}</code></td>
                 <td><span class="badge-lock">🔒</span></td>
                 <td><button class="btn ghost sm" onclick="copyText('{{ url('/api/subdistricts') }}', this)">คัดลอก URL</button></td>
             </tr>
@@ -201,7 +201,7 @@
             </tr>
         </table>
         
-        <div class="cond"><b>สิทธิ์:</b> ระบบกำหนด <code>user_id</code> เป็นผู้ยิง request ให้เอง ตอนแก้/ลบต้องเป็นเจ้าของหรือ admin เท่านั้น (มิฉะนั้นจะคืนค่า <code>403</code>)</div>
+        <div class="cond"><b>สิทธิ์:</b> ระบบกำหนด <code>user_id</code> เป็นผู้ยิง request ให้เอง ตอนแก้/ลบต้องเป็นเจ้าของหรือ admin เท่านั้น ถ้าแก้/ลบได้ 403 แปลว่าไม่มีสิทธิ์</div>
         <div class="cond"><b>ส่งรูป:</b> ใช้ <code>photos[]</code> (ไฟล์), <code>photo_urls[]</code> (URL รูป) และ <code>delete_photo_ids[]</code> (ลบรูปเดิม)<br>หากแก้ข้อมูลพร้อมแนบไฟล์ให้ใช้ <code>POST</code> พร้อม <code>_method=PUT</code> (multipart/form-data)</div>
     </section>
 
@@ -262,6 +262,9 @@ curl.exe -X DELETE "$base/pet/$petId" -H "Accept: application/json" -H "Authoriz
             <tr><td><b>404</b></td><td>ไม่พบข้อมูล</td></tr>
             <tr><td><b>422</b></td><td>ข้อมูลส่งมาผิดพลาดหรือไม่ครบถ้วน</td></tr>
         </table>
+
+        <h3>JSON ตัวอย่างจากข้อมูลสัตว์ในฐานข้อมูล</h3>
+        <pre class="json">{{ $petJson }}</pre>
     </section>
 
     @auth

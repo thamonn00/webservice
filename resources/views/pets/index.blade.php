@@ -34,7 +34,7 @@
         <div class="pet-grid">
             @foreach ($pets as $p)
                 <a class="card pet-card" href="{{ route('pets.show', $p) }}">
-                    <div class="pic"><img loading="lazy" src="{{ $p->photos->first()->url ?? asset('images/sample/dog.svg') }}"
+                    <div class="pic"><img loading="lazy" src="{{ $p->photos->first()->url ?? asset('images/sample/other.svg') }}"
                             alt="{{ $p->name }}"></div>
                     <div class="info">
                         <h3>{{ $p->name }} <small>#{{ $p->id }}</small></h3>

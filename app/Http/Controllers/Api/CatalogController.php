@@ -47,7 +47,11 @@ class CatalogController extends Controller
 
     public function districts(Request $request)
     {
-        $data = District::when($request->filled('province_id'), fn($q) => $q->where('province_id', $request->province_id))->orderBy('name_th')->get();
+        $request->validate(['per_page' => ['sometimes', 'integer', 'between:1,100']]);
+        $query = District::when($request->filled('province_id'), fn($q) => $q->where('province_id', $request->province_id))->orderBy('name_th');
+
+        // เส้นหนัก (928 แถว): ส่ง ?per_page= มาได้ paginate ไม่ส่งคง get() เดิมไว้ไม่ให้พัง client เก่า
+        $data = $request->filled('per_page') ? $query->paginate($request->input('per_page')) : $query->get();
 
         return response()->json(['status' => true, 'message' => 'ดึงข้อมูลสำเร็จ', 'data' => $data]);
     }
@@ -59,7 +63,11 @@ class CatalogController extends Controller
 
     public function subdistricts(Request $request)
     {
-        $data = Subdistrict::when($request->filled('district_id'), fn($q) => $q->where('district_id', $request->district_id))->orderBy('name_th')->get();
+        $request->validate(['per_page' => ['sometimes', 'integer', 'between:1,100']]);
+        $query = Subdistrict::when($request->filled('district_id'), fn($q) => $q->where('district_id', $request->district_id))->orderBy('name_th');
+
+        // เส้นหนัก (7,436 แถว): ส่ง ?per_page= มาได้ paginate ไม่ส่งคง get() เดิมไว้ไม่ให้พัง client เก่า
+        $data = $request->filled('per_page') ? $query->paginate($request->input('per_page')) : $query->get();
 
         return response()->json(['status' => true, 'message' => 'ดึงข้อมูลสำเร็จ', 'data' => $data]);
     }
@@ -81,7 +89,7 @@ class CatalogController extends Controller
 
     public function updateSpecies(Request $request, Species $species)
     {
-        $data = $request->validate(['name' => ['required', 'string', 'max:100', 'unique:species,name,'.$species->id]]);
+        $data = $request->validate(['name' => ['required', 'string', 'max:100', 'unique:species,name,' . $species->id]]);
         $species->update($data);
 
         return response()->json(['status' => true, 'message' => 'แก้ไขข้อมูลเรียบร้อยแล้ว', 'data' => $species->refresh()]);

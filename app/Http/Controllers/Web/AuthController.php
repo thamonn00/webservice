@@ -53,8 +53,10 @@ class AuthController extends Controller
         ], [], ['name' => 'ชื่อ', 'email' => 'อีเมล', 'phone' => 'เบอร์โทร', 'password' => 'รหัสผ่าน']);
 
         $user = User::create([
-            'name' => $data['name'], 'email' => $data['email'],
-            'phone' => $data['phone'] ?? null, 'password' => Hash::make($data['password']),
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'] ?? null,
+            'password' => Hash::make($data['password']),
         ]);
         Auth::login($user);
         $request->session()->regenerate();

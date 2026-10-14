@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('title', $pet->name)
 @section('content')
-    @php $photos = $pet->photos; $cover = $photos->first()->url ?? asset('images/sample/dog.svg'); @endphp
+    @php $photos = $pet->photos; $cover = $photos->first()->url ?? asset('images/sample/other.svg'); @endphp
     <div class="crumb"><a href="{{ route('pets.index') }}">สัตว์เลี้ยง</a> / {{ $pet->name }}</div>
 
     <div class="detail">

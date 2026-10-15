@@ -17,6 +17,10 @@
         <div class="flow">
             <span>Login</span><i>→</i><span>เรียก API</span><i>→</i><span>Logout</span>
         </div>
+        <div class="toolbar">
+            <a class="btn ghost sm" href="#all-api">API ทั้งหมด</a>
+            <a class="btn ghost sm" href="#photo-guide">วิธีเพิ่มรูปภาพ</a>
+        </div>
     </section>
 
     @auth
@@ -53,6 +57,7 @@
         <span class="step-no">1</span>
         <h2>Step 1 — Login และ Token (ข้อ 1.2)</h2>
         
+        <div class="table-wrap" role="region" aria-label="ตารางเอกสาร API" tabindex="0">
         <table class="tbl api-table">
             <tr>
                 <th>Method</th>
@@ -97,6 +102,7 @@
                 <td><button class="btn ghost sm" onclick="copyText('{{ url('/api/me') }}', this)">คัดลอก URL</button></td>
             </tr>
         </table>
+        </div>
         
         <div class="cond"><b>เงื่อนไข Header:</b> ใส่ <code>Accept: application/json</code> ทุก request และ <code>Authorization: Bearer &lt;token&gt;</code> ทุกเส้น (ยกเว้น <code>/register</code> กับ <code>/login</code>)</div>
         <div class="cond"><b>หาก Login ได้ 401:</b> อย่าใช้ admin@example.com เว้นแต่มีใน db แนะนำให้ใช้ somchai@example.com / password123 สำหรับทดสอบ local</div>
@@ -106,6 +112,7 @@
         <span class="step-no">2</span>
         <h2>Step 2 — ค้นหาข้อมูล GET (ข้อ 1.3)</h2>
         
+        <div class="table-wrap" role="region" aria-label="ตารางเอกสาร API" tabindex="0">
         <table class="tbl api-table">
             <tr>
                 <th>Method</th>
@@ -164,12 +171,14 @@
                 <td><button class="btn ghost sm" onclick="copyText('{{ url('/api/subdistricts') }}', this)">คัดลอก URL</button></td>
             </tr>
         </table>
+        </div>
     </section>
 
-    <section class="step">
+    <section class="step" id="photo-guide">
         <span class="step-no">3</span>
         <h2>Step 3 — จัดการข้อมูล POST, PUT, DELETE (ข้อ 1.4)</h2>
         
+        <div class="table-wrap" role="region" aria-label="ตารางเอกสาร API" tabindex="0">
         <table class="tbl api-table">
             <tr>
                 <th>Method</th>
@@ -200,9 +209,96 @@
                 <td><button class="btn ghost sm" onclick="copyText('{{ url('/api/pet/1') }}', this)">คัดลอก URL</button></td>
             </tr>
         </table>
+        </div>
         
         <div class="cond"><b>สิทธิ์:</b> ระบบกำหนด <code>user_id</code> เป็นผู้ยิง request ให้เอง ตอนแก้/ลบต้องเป็นเจ้าของหรือ admin เท่านั้น ถ้าแก้/ลบได้ 403 แปลว่าไม่มีสิทธิ์</div>
         <div class="cond"><b>ส่งรูป:</b> ใช้ <code>photos[]</code> (ไฟล์), <code>photo_urls[]</code> (URL รูป) และ <code>delete_photo_ids[]</code> (ลบรูปเดิม)<br>หากแก้ข้อมูลพร้อมแนบไฟล์ให้ใช้ <code>POST</code> พร้อม <code>_method=PUT</code> (multipart/form-data)</div>
+        <div class="cond"><b>อัปโหลดใน Thunder Client:</b> เลือก Body → Form ใส่ข้อมูลสัตว์หรือประกาศ แล้วเพิ่ม <code>photos[]</code> ชนิด File รองรับ JPG, JPEG, PNG, WebP ไม่เกิน 5 MB ต่อรูป และไม่เกิน 10 ไฟล์ต่อคำขอ อย่าตั้ง Content-Type เอง เพื่อให้โปรแกรมสร้าง multipart boundary ให้<br>ลิงก์รูปใช้ <code>photo_urls[]</code> ไม่เกิน 10 URL ต่อคำขอ ส่วน <code>delete_photo_ids[]</code> ใช้ ID จาก photos ใน response และลบได้เฉพาะรูปของรายการนั้น การแสดงไฟล์อัปโหลดต้องตั้งค่า <code>php artisan storage:link</code> ครั้งแรก</div>
+    </section>
+
+    @php
+        $apiHelp = [
+            'AuthController@register' => 'สมัครสมาชิก: จำเป็น name, email, password (อย่างน้อย 8 ตัว), password_confirmation; phone ไม่บังคับ ได้ Token กลับมา',
+            'AuthController@login' => 'เข้าสู่ระบบ: จำเป็น email, password ได้ Token สำหรับ Authorization: Bearer',
+            'AuthController@logout' => 'ออกจากระบบ: ไม่ต้องส่ง Body เพิกถอน Token ที่ใช้ในคำขอนี้',
+            'AuthController@me' => 'ดูข้อมูลบัญชีของ Token ปัจจุบัน',
+            'PetController@index' => 'ดูสัตว์ทั้งหมดแบบแบ่งหน้า กรอง q, species_id, breed_id, gender=male/female/unknown; per_page=1–100 (ค่าเริ่มต้น 15), page',
+            'PetController@show' => 'ดูสัตว์ตาม ID พร้อมชนิด สายพันธุ์ รูปภาพ และชื่อเจ้าของ',
+            'PetController@store' => 'เพิ่มสัตว์: จำเป็น species_id, name; ไม่บังคับ breed_id, color, gender=male/female/unknown, age=0–50, description และรูปภาพ ระบบกำหนดเจ้าของจาก Token',
+            'PetController@update' => 'แก้สัตว์: ส่งเฉพาะช่องที่ต้องการแก้จากรายการเพิ่มสัตว์ได้ รวมทั้งรูปภาพ เฉพาะเจ้าของหรือ admin; breed_id ต้องตรงกับ species_id',
+            'PetController@destroy' => 'ลบสัตว์พร้อมรูปภาพ เฉพาะเจ้าของหรือ admin; ไม่ต้องส่ง Body',
+            'ReportController@index' => 'ดูประกาศแบบแบ่งหน้า กรอง type=lost/found, status=open/closed, species_id, q; per_page=1–100 (ค่าเริ่มต้น 15), page',
+            'ReportController@show' => 'ดูประกาศตาม ID พร้อมรูปภาพ สัตว์ที่อ้างอิง และข้อมูลพื้นที่',
+            'ReportController@store' => 'เพิ่มประกาศ: จำเป็น species_id, type=lost/found, title, event_at (เช่น 2026-10-16 14:30:00), contact_phone; ไม่บังคับ pet_id, breed_id, color, description, subdistrict_id, place, latitude (-90 ถึง 90), longitude (-180 ถึง 180), status=open/closed และรูปภาพ; pet_id ต้องเป็นสัตว์ของตัวเอง ยกเว้น admin',
+            'ReportController@update' => 'แก้ประกาศ: ส่งเฉพาะช่องที่ต้องการแก้จากรายการเพิ่มประกาศ รวมทั้งรูปภาพ เฉพาะเจ้าของหรือ admin; ใช้ status=closed เพื่อปิดประกาศ',
+            'ReportController@destroy' => 'ลบประกาศพร้อมรูปภาพ เฉพาะเจ้าของหรือ admin; ไม่ต้องส่ง Body',
+            'CatalogController@species' => 'ดูชนิดสัตว์ทั้งหมด',
+            'CatalogController@speciesShow' => 'ดูชนิดสัตว์ตาม ID พร้อมสายพันธุ์ในชนิดนั้น',
+            'CatalogController@breeds' => 'ดูสายพันธุ์ทั้งหมด กรอง species_id ได้',
+            'CatalogController@breedShow' => 'ดูสายพันธุ์ตาม ID พร้อมชนิดสัตว์',
+            'CatalogController@provinces' => 'ดูจังหวัดทั้งหมด',
+            'CatalogController@provinceShow' => 'ดูจังหวัดตาม ID พร้อมอำเภอ',
+            'CatalogController@districts' => 'ดูอำเภอ กรอง province_id ได้; ส่ง per_page=1–100 และ page เพื่อแบ่งหน้า ถ้าไม่ส่ง per_page จะคืนทั้งหมด',
+            'CatalogController@districtShow' => 'ดูอำเภอตาม ID พร้อมจังหวัดและตำบล',
+            'CatalogController@subdistricts' => 'ดูตำบล กรอง district_id ได้; ส่ง per_page=1–100 และ page เพื่อแบ่งหน้า ถ้าไม่ส่ง per_page จะคืนทั้งหมด',
+            'CatalogController@subdistrictShow' => 'ดูตำบลตาม ID พร้อมอำเภอและจังหวัด',
+            'CatalogController@storeSpecies' => 'เพิ่มชนิดสัตว์: จำเป็น name ความยาวไม่เกิน 100 ตัว และชื่อต้องไม่ซ้ำ',
+            'CatalogController@updateSpecies' => 'แก้ชนิดสัตว์: จำเป็น name ความยาวไม่เกิน 100 ตัว และชื่อต้องไม่ซ้ำ',
+            'CatalogController@destroySpecies' => 'ลบชนิดสัตว์: ไม่ต้องส่ง Body ลบไม่ได้ถ้ามีสัตว์หรือประกาศใช้งานอยู่',
+            'CatalogController@storeBreed' => 'เพิ่มสายพันธุ์: จำเป็น species_id, name (ไม่เกิน 100 ตัว) ชื่อภายในชนิดเดียวกันต้องไม่ซ้ำ',
+            'CatalogController@updateBreed' => 'แก้สายพันธุ์: ส่ง species_id และ/หรือ name (ไม่เกิน 100 ตัว) ชื่อภายในชนิดเดียวกันต้องไม่ซ้ำ',
+            'CatalogController@destroyBreed' => 'ลบสายพันธุ์: ไม่ต้องส่ง Body ลบไม่ได้ถ้ามีสัตว์หรือประกาศใช้งานอยู่',
+            'UserController@index' => 'ดูผู้ใช้แบบแบ่งหน้า กรอง q (ชื่อหรืออีเมล), role=user/admin; เลือก per_page และ page ได้',
+            'UserController@show' => 'ดูผู้ใช้ตาม ID พร้อมจำนวนสัตว์ของผู้ใช้',
+            'UserController@update' => 'แก้ผู้ใช้: ส่ง name, phone และ/หรือ role=user/admin; ห้ามส่ง role เมื่อแก้บัญชีตัวเอง API นี้ไม่รองรับการเปลี่ยนอีเมลหรือรหัสผ่าน',
+            'UserController@destroy' => 'ลบผู้ใช้พร้อมสัตว์ ประกาศ และรูปภาพที่เป็นเจ้าของ ห้ามลบบัญชีตัวเอง; ไม่ต้องส่ง Body',
+        ];
+        $apiRoutes = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes())
+            ->filter(fn ($route) => str_starts_with($route->uri(), 'api/'));
+        $apiGroups = $apiRoutes->groupBy(function ($route) {
+            if (in_array('admin', $route->gatherMiddleware(), true)) return 'จัดการข้อมูลสำหรับแอดมิน';
+            $controller = class_basename($route->getControllerClass());
+            return [
+                'AuthController' => 'บัญชีและ Token',
+                'PetController' => 'สัตว์เลี้ยง',
+                'ReportController' => 'ประกาศสัตว์หาย / พบสัตว์',
+                'CatalogController' => 'ชนิดสัตว์ สายพันธุ์ และข้อมูลพื้นที่',
+            ][$controller] ?? 'API อื่น ๆ';
+        });
+    @endphp
+    <section class="step" id="all-api">
+        <span class="step-no">API</span>
+        <h2>รายการ API ทั้งหมดที่เปิดใช้งาน ({{ $apiRoutes->count() }} เส้นทาง)</h2>
+        <p class="meta">ทุก Path ด้านล่างต่อจาก Base URL ด้านบน เปลี่ยนค่าภายในวงเล็บปีกกาเป็น ID จริง ปุ่มคัดลอกใช้ ID 1 เป็นตัวอย่าง PUT และ PATCH ใช้ URL เดียวกัน</p>
+        <div class="cond"><b>รูปแบบคำขอ:</b> ส่ง <code>Accept: application/json</code> ทุกครั้ง สำหรับ JSON ตั้ง <code>Content-Type: application/json</code> ด้วย ส่วนคำขอแนบไฟล์ใช้ Form ตามวิธีเพิ่มรูปภาพด้านบน<br><b>ชื่อเส้นทางสัตว์:</b> <code>/pet</code> และ <code>/pets</code> ใช้งานแทนกันได้ครบทุก method ส่วนประกาศใช้ <code>/reports</code></div>
+        @foreach ($apiGroups as $groupName => $groupRoutes)
+            <h3>{{ $groupName }}</h3>
+            <div class="table-wrap" role="region" aria-label="{{ $groupName }}" tabindex="0">
+                <table class="tbl api-table">
+                    <thead><tr><th>Method</th><th>Path</th><th>ข้อมูลและเงื่อนไข</th><th>สิทธิ์</th><th>คัดลอก</th></tr></thead>
+                    <tbody>
+                        @foreach ($groupRoutes as $apiRoute)
+                            @php
+                                $methods = array_values(array_diff($apiRoute->methods(), ['HEAD']));
+                                $path = '/' . $apiRoute->uri();
+                                $examplePath = preg_replace('/\{[^}]+\}/', '1', $path);
+                                $helpKey = class_basename($apiRoute->getControllerClass()) . '@' . $apiRoute->getActionMethod();
+                                $middleware = $apiRoute->gatherMiddleware();
+                                $isAdminApi = in_array('admin', $middleware, true);
+                                $isPrivateApi = in_array('auth:sanctum', $middleware, true);
+                            @endphp
+                            <tr data-api-route="{{ $apiRoute->uri() }}">
+                                <td><span class="m-{{ $methods[0] }}">{{ implode('/', $methods) }}</span></td>
+                                <td><code>{{ '/' . preg_replace('#^api/#', '', $apiRoute->uri()) }}</code></td>
+                                <td>{{ $apiHelp[$helpKey] ?? 'ดูรายละเอียดจาก API response' }}</td>
+                                <td><span class="{{ $isPrivateApi ? 'badge-lock' : 'badge-free' }}">{{ $isAdminApi ? 'Token ของ admin' : ($isPrivateApi ? 'ต้องมี token' : 'ไม่ต้องมี token') }}</span></td>
+                                <td><button class="btn ghost sm" onclick="copyText('{{ url($examplePath) }}', this)">คัดลอก URL</button></td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
     </section>
 
     <section class="step">
@@ -253,6 +349,7 @@ curl.exe -X DELETE "$base/pet/$petId" -H "Accept: application/json" -H "Authoriz
         </pre>
 
         <h3>รหัสตอบกลับ (HTTP Status Codes)</h3>
+        <div class="table-wrap" role="region" aria-label="ตารางเอกสาร API" tabindex="0">
         <table class="tbl api-table">
             <tr><th>รหัส</th><th>ความหมาย</th></tr>
             <tr><td><b>200</b></td><td>สำเร็จ (Login, อ่าน, แก้ไข, Logout)</td></tr>
@@ -262,6 +359,7 @@ curl.exe -X DELETE "$base/pet/$petId" -H "Accept: application/json" -H "Authoriz
             <tr><td><b>404</b></td><td>ไม่พบข้อมูล</td></tr>
             <tr><td><b>422</b></td><td>ข้อมูลส่งมาผิดพลาดหรือไม่ครบถ้วน</td></tr>
         </table>
+        </div>
 
         <h3>JSON ตัวอย่างจากข้อมูลสัตว์ในฐานข้อมูล</h3>
         <pre class="json">{{ $petJson }}</pre>

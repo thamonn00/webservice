@@ -44,7 +44,7 @@ Route::group(
 
         // ---------- ประกาศหาย/พบ (reports พหูพจน์ = เส้นหลัก, report เอกพจน์ = alias)
         Route::resource('reports', ReportController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
-        Route::resource('report', ReportController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
+        // Route::resource('report', ReportController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
         // ---------- เฉพาะแอดมิน: จัดการ users + เพิ่ม/แก้/ลบ species,breeds ----------
         Route::middleware('admin')->group(function () {

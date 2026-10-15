@@ -270,7 +270,15 @@ class ApiTokenAndPetTest extends TestCase
             ->assertSee('curl.exe')
             ->assertSee('JSON ตัวอย่างจากข้อมูลสัตว์ในฐานข้อมูล');
 
-        $this->assertSame(22, substr_count($response->getContent(), 'คัดลอก URL'));
+        $routes = collect(\Illuminate\Support\Facades\Route::getRoutes()->getRoutes())
+            ->filter(fn ($route) => str_starts_with($route->uri(), 'api/'));
+        foreach ($routes as $route) {
+            $response->assertSee('data-api-route="'.$route->uri().'"', false);
+            $examplePath = preg_replace('/\{[^}]+\}/', '1', $route->uri());
+            $response->assertSee(url($examplePath));
+        }
+        $this->assertSame($routes->count(), substr_count($response->getContent(), 'data-api-route='));
+        $response->assertSee('Token ของ admin')->assertSee('photos[]')->assertSee('/reports');
     }
 
     public function test_logged_in_web_user_can_create_a_token_for_thunder_client()

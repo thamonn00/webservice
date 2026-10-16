@@ -46,6 +46,8 @@ Route::group(
         Route::resource('reports', ReportController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
         // Route::resource('report', ReportController::class)->only(['index', 'show', 'store', 'update', 'destroy']);
 
+
+        
         // ---------- เฉพาะแอดมิน: จัดการ users + เพิ่ม/แก้/ลบ species,breeds ----------
         Route::middleware('admin')->group(function () {
             Route::get('/users', [UserController::class, 'index']);

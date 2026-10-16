@@ -33,6 +33,7 @@ class PetController extends Controller
                 $t = '%' . addcslashes($request->q, '%_\\') . '%';
                 $q->where(fn($i) => $i->where('name', 'like', $t)->orWhere('color', 'like', $t));
             })
+            
             ->latest('id')
             ->paginate($request->input('per_page', 15));
 

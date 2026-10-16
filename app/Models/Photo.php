@@ -33,7 +33,7 @@ class Photo extends Model
             return asset(ltrim($this->path, '/'));    // รูปตัวอย่างใน public/
         }
 
-        return asset('storage/'.$this->path);         // ไฟล์ที่อัปโหลด
+        return asset('storage/' . $this->path);         // ไฟล์ที่อัปโหลด
     }
 
     /** true = ไม่ใช่ไฟล์ใน storage (URL ภายนอก หรือรูปตัวอย่างใน public) จึงไม่ต้องลบไฟล์ */
